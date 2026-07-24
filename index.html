@@ -4,626 +4,119 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>铝产业数据库平台</title>
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js">
-    </script>
-    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js">
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: 'Segoe UI', 'PingFang SC', Roboto, 'Helvetica Neue', sans-serif;
-            background: #0b0f1a;
-            color: #e8edf5;
-            min-height: 100vh;
-            padding: 16px 24px 60px;
-        }
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #1a2233;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #3a4a6a;
-            border-radius: 8px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #5a7aaa;
-        }
-
-        .header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 12px 20px;
-            background: linear-gradient(135deg, #111827 0%, #1a2538 100%);
-            border-radius: 16px;
-            border: 1px solid #2a3a55;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            gap: 12px;
-        }
-        .brand {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-        }
-        .logo {
-            width: 48px;
-            height: 48px;
-            background: linear-gradient(135deg, #4a8af4, #1a5fc7);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 26px;
-            font-weight: 800;
-            color: #fff;
-            box-shadow: 0 0 20px rgba(74, 138, 244, 0.35);
-            user-select: none;
-            flex-shrink: 0;
-        }
-        .brand-text {
-            font-size: 22px;
-            font-weight: 700;
-            background: linear-gradient(90deg, #90caf9, #42a5f5);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            letter-spacing: 1px;
-        }
-        .stats {
-            display: flex;
-            gap: 28px;
-            font-size: 14px;
-            color: #a0b8d0;
-            background: rgba(0, 20, 50, 0.4);
-            padding: 6px 18px;
-            border-radius: 30px;
-            border: 1px solid #1e3050;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-        .stats span {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .stats .num {
-            color: #7bb8ff;
-            font-weight: 600;
-            font-size: 16px;
-        }
-        .stats .update-time {
-            color: #6a9ac8;
-            font-size: 12px;
-            border-left: 1px solid #1a3050;
-            padding-left: 14px;
-        }
-
-        .controls {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            gap: 12px 18px;
-            padding: 14px 20px;
-            background: #111b2a;
-            border-radius: 14px;
-            border: 1px solid #25344f;
-            margin-bottom: 20px;
-        }
-        .controls label {
-            font-size: 13px;
-            color: #8aa4c8;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            white-space: nowrap;
-        }
-        .controls select {
-            background: #0f1729;
-            color: #e0e8f5;
-            border: 1px solid #2a3d5e;
-            border-radius: 8px;
-            padding: 6px 12px;
-            font-size: 13px;
-            outline: none;
-            transition: 0.2s;
-            min-width: 120px;
-            max-width: 200px;
-        }
-        .controls select:focus {
-            border-color: #4a8af4;
-            box-shadow: 0 0 0 2px rgba(74, 138, 244, 0.2);
-        }
-        .controls select option {
-            background: #0f1729;
-        }
-
-        .chart-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 18px;
-        }
-        @media (max-width: 1100px) {
-            .chart-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .chart-card {
-            background: #111b2a;
-            border-radius: 14px;
-            border: 1px solid #1e3050;
-            padding: 14px 14px 6px 14px;
-            transition: 0.2s;
-            display: flex;
-            flex-direction: column;
-        }
-        .chart-card:hover {
-            border-color: #2a4a6a;
-        }
-        .chart-card .card-header {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            gap: 6px 10px;
-            margin-bottom: 6px;
-        }
-        .chart-card .card-title {
-            font-size: 14px;
-            font-weight: 600;
-            color: #c8daf0;
-            margin-right: 6px;
-            white-space: nowrap;
-        }
-        .chart-card .card-controls {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            gap: 4px 8px;
-            flex: 1;
-        }
-        .chart-card .card-controls select,
-        .chart-card .card-controls input {
-            background: #0f1729;
-            color: #e0e8f5;
-            border: 1px solid #2a3d5e;
-            border-radius: 6px;
-            padding: 3px 8px;
-            font-size: 12px;
-            outline: none;
-            transition: 0.2s;
-        }
-        .chart-card .card-controls select:focus,
-        .chart-card .card-controls input:focus {
-            border-color: #4a8af4;
-            box-shadow: 0 0 0 2px rgba(74, 138, 244, 0.15);
-        }
-        .chart-card .card-controls select option {
-            background: #0f1729;
-        }
-        .chart-card .card-controls input[type="date"] {
-            width: 110px;
-            padding: 3px 6px;
-        }
-        .chart-card .card-controls .date-range {
-            display: flex;
-            align-items: center;
-            gap: 2px;
-            font-size: 11px;
-            color: #6a8aaa;
-        }
-        .chart-card .card-controls .date-range input {
-            width: 90px;
-        }
-        .chart-card .card-controls .compare-tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 3px;
-            align-items: center;
-            margin-left: 2px;
-        }
-        .chart-card .card-controls .compare-tag {
-            background: #1a2a4a;
-            border: 1px solid #2a4a6a;
-            border-radius: 12px;
-            padding: 0 6px 0 10px;
-            font-size: 11px;
-            color: #8ab0d8;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            height: 22px;
-            line-height: 22px;
-        }
-        .chart-card .card-controls .compare-tag .remove-tag {
-            cursor: pointer;
-            color: #6a8aaa;
-            font-weight: 700;
-            font-size: 13px;
-            line-height: 1;
-            padding: 0 2px;
-        }
-        .chart-card .card-controls .compare-tag .remove-tag:hover {
-            color: #f07a7a;
-        }
-        .chart-card .card-controls .add-compare-btn {
-            background: #1a3a5a;
-            border: none;
-            color: #8ab0d8;
-            padding: 0 10px;
-            border-radius: 12px;
-            font-size: 12px;
-            cursor: pointer;
-            height: 22px;
-            line-height: 22px;
-            transition: 0.2s;
-        }
-        .chart-card .card-controls .add-compare-btn:hover {
-            background: #2a4a7a;
-            color: #fff;
-        }
-        .chart-card .card-controls .chart-type-select {
-            min-width: 60px;
-            width: auto;
-            padding: 2px 6px;
-            font-size: 12px;
-        }
-        .chart-card .card-controls .compare-select {
-            min-width: 80px;
-            width: auto;
-            padding: 2px 6px;
-            font-size: 12px;
-        }
-
-        .chart-card .chart-container {
-            width: 100%;
-            height: 230px;
-            min-height: 180px;
-            flex: 1;
-        }
-
-        .empty-state {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 60px 20px;
-            color: #4a6a8a;
-            text-align: center;
-            background: #0d1628;
-            border-radius: 14px;
-            border: 1px dashed #1e3050;
-            min-height: 300px;
-            grid-column: 1 / -1;
-        }
-        .empty-state .icon {
-            font-size: 56px;
-            margin-bottom: 16px;
-            opacity: 0.5;
-        }
-        .empty-state h3 {
-            font-weight: 400;
-            font-size: 18px;
-            color: #7a9ab8;
-        }
-        .empty-state p {
-            font-size: 13px;
-            color: #4a6a8a;
-            margin-top: 6px;
-        }
-
-        .upload-area {
-            position: fixed;
-            bottom: 12px;
-            right: 24px;
-            z-index: 999;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            background: rgba(10, 18, 34, 0.85);
-            backdrop-filter: blur(6px);
-            padding: 4px 10px 4px 14px;
-            border-radius: 30px;
-            border: 1px solid #1a3050;
-            font-size: 12px;
-            color: #4a6a8a;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-        .upload-area:hover {
-            border-color: #3a6aaa;
-            color: #8ab0d8;
-        }
-        .upload-area input[type="file"] {
-            position: absolute;
-            opacity: 0;
-            width: 100%;
-            height: 100%;
-            cursor: pointer;
-            left: 0;
-            top: 0;
-        }
-        .upload-area .upload-icon {
-            font-size: 16px;
-        }
-        .upload-area .upload-label {
-            pointer-events: none;
-        }
-        .upload-area .upload-status {
-            color: #5a8a5a;
-            font-size: 11px;
-            margin-left: 4px;
-            pointer-events: none;
-        }
-
-        .loading-mask {
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(4px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
-            visibility: hidden;
-            opacity: 0;
-            transition: 0.3s;
-        }
-        .loading-mask.show {
-            visibility: visible;
-            opacity: 1;
-        }
-        .loading-mask .spinner {
-            width: 48px;
-            height: 48px;
-            border: 4px solid #1a3050;
-            border-top-color: #4a8af4;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-        }
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
-        .badge {
-            display: inline-block;
-            background: #1a2a4a;
-            padding: 1px 10px;
-            border-radius: 12px;
-            font-size: 11px;
-            color: #6a9ac8;
-        }
-        .no-data-msg {
-            color: #4a6a8a;
-            font-size: 13px;
-            padding: 8px 0;
-            text-align: center;
-            grid-column: 1 / -1;
-        }
-
-        @media (max-width: 768px) {
-            body {
-                padding: 12px 12px 70px;
-            }
-            .header {
-                flex-direction: column;
-                align-items: stretch;
-                gap: 10px;
-            }
-            .brand-text {
-                font-size: 18px;
-            }
-            .stats {
-                font-size: 12px;
-                gap: 8px;
-                padding: 4px 12px;
-            }
-            .stats .update-time {
-                padding-left: 8px;
-                border-left: none;
-                width: 100%;
-            }
-            .controls {
-                flex-direction: column;
-                align-items: stretch;
-                gap: 10px;
-            }
-            .controls label {
-                white-space: normal;
-            }
-            .controls select {
-                max-width: 100%;
-                width: 100%;
-            }
-            .chart-grid {
-                grid-template-columns: 1fr;
-                gap: 14px;
-            }
-            .chart-card .card-header {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            .chart-card .card-controls {
-                flex-wrap: wrap;
-            }
-            .chart-card .card-controls input[type="date"] {
-                width: 80px;
-            }
-            .chart-card .card-controls .date-range input {
-                width: 70px;
-            }
-            .chart-card .chart-container {
-                height: 180px;
-            }
-            .upload-area {
-                bottom: 8px;
-                right: 12px;
-                padding: 3px 8px 3px 10px;
-                font-size: 11px;
-            }
-        }
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Segoe UI','PingFang SC',Roboto,sans-serif;background:#0b0f1a;color:#e8edf5;min-height:100vh;padding:16px 24px 60px}
+        .header{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;background:linear-gradient(135deg,#111827,#1a2538);border-radius:16px;border:1px solid #2a3a55;margin-bottom:20px;flex-wrap:wrap;gap:12px}
+        .brand{display:flex;align-items:center;gap:14px}
+        .logo{width:48px;height:48px;background:linear-gradient(135deg,#4a8af4,#1a5fc7);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:800;color:#fff;box-shadow:0 0 20px rgba(74,138,244,0.35)}
+        .brand-text{font-size:22px;font-weight:700;background:linear-gradient(90deg,#90caf9,#42a5f5);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+        .stats{display:flex;gap:28px;font-size:14px;color:#a0b8d0;background:rgba(0,20,50,0.4);padding:6px 18px;border-radius:30px;border:1px solid #1e3050;flex-wrap:wrap;align-items:center}
+        .stats .num{color:#7bb8ff;font-weight:600;font-size:16px}
+        .stats .update-time{color:#6a9ac8;font-size:12px;border-left:1px solid #1a3050;padding-left:14px}
+        .controls{display:flex;flex-wrap:wrap;align-items:center;gap:12px 18px;padding:14px 20px;background:#111b2a;border-radius:14px;border:1px solid #25344f;margin-bottom:20px}
+        .controls label{font-size:13px;color:#8aa4c8;display:flex;align-items:center;gap:6px;white-space:nowrap}
+        .controls select{background:#0f1729;color:#e0e8f5;border:1px solid #2a3d5e;border-radius:8px;padding:6px 12px;font-size:13px;outline:none;min-width:120px;max-width:200px}
+        .controls select:focus{border-color:#4a8af4;box-shadow:0 0 0 2px rgba(74,138,244,0.2)}
+        .chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+        @media(max-width:1100px){.chart-grid{grid-template-columns:1fr}}
+        .chart-card{background:#111b2a;border-radius:14px;border:1px solid #1e3050;padding:14px;transition:0.2s;display:flex;flex-direction:column}
+        .chart-card .card-header{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin-bottom:6px}
+        .chart-card .card-title{font-size:14px;font-weight:600;color:#c8daf0;margin-right:6px;white-space:nowrap}
+        .chart-card .card-controls{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;flex:1}
+        .chart-card .card-controls select,.chart-card .card-controls input{background:#0f1729;color:#e0e8f5;border:1px solid #2a3d5e;border-radius:6px;padding:3px 8px;font-size:12px;outline:none}
+        .chart-card .card-controls select:focus,.chart-card .card-controls input:focus{border-color:#4a8af4}
+        .chart-card .card-controls input[type="date"]{width:110px;padding:3px 6px}
+        .chart-card .card-controls .date-range{display:flex;align-items:center;gap:2px;font-size:11px;color:#6a8aaa}
+        .chart-card .card-controls .date-range input{width:90px}
+        .chart-card .card-controls .compare-tags{display:flex;flex-wrap:wrap;gap:3px;align-items:center;margin-left:2px}
+        .chart-card .card-controls .compare-tag{background:#1a2a4a;border:1px solid #2a4a6a;border-radius:12px;padding:0 6px 0 10px;font-size:11px;color:#8ab0d8;display:flex;align-items:center;gap:4px;height:22px}
+        .chart-card .card-controls .compare-tag .remove-tag{cursor:pointer;color:#6a8aaa;font-weight:700;font-size:13px;padding:0 2px}
+        .chart-card .card-controls .compare-tag .remove-tag:hover{color:#f07a7a}
+        .chart-card .card-controls .add-compare-btn{background:#1a3a5a;border:none;color:#8ab0d8;padding:0 10px;border-radius:12px;font-size:12px;cursor:pointer;height:22px}
+        .chart-card .card-controls .add-compare-btn:hover{background:#2a4a7a;color:#fff}
+        .chart-card .chart-container{width:100%;height:230px;min-height:180px;flex:1}
+        .empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;color:#4a6a8a;text-align:center;background:#0d1628;border-radius:14px;border:1px dashed #1e3050;min-height:300px;grid-column:1/-1}
+        .empty-state .icon{font-size:56px;margin-bottom:16px;opacity:0.5}
+        .empty-state h3{font-weight:400;font-size:18px;color:#7a9ab8}
+        .empty-state p{font-size:13px;color:#4a6a8a;margin-top:6px}
+        .upload-area{position:fixed;bottom:12px;right:24px;z-index:999;display:flex;align-items:center;gap:6px;background:rgba(10,18,34,0.85);backdrop-filter:blur(6px);padding:4px 10px 4px 14px;border-radius:30px;border:1px solid #1a3050;font-size:12px;color:#4a6a8a;cursor:pointer;transition:0.3s}
+        .upload-area:hover{border-color:#3a6aaa;color:#8ab0d8}
+        .upload-area input[type="file"]{position:absolute;opacity:0;width:100%;height:100%;cursor:pointer;left:0;top:0}
+        .upload-area .upload-status{color:#5a8a5a;font-size:11px;margin-left:4px;pointer-events:none}
+        .loading-mask{position:fixed;inset:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:9999;visibility:hidden;opacity:0;transition:0.3s}
+        .loading-mask.show{visibility:visible;opacity:1}
+        .loading-mask .spinner{width:48px;height:48px;border:4px solid #1a3050;border-top-color:#4a8af4;border-radius:50%;animation:spin 0.8s linear infinite}
+        @keyframes spin{to{transform:rotate(360deg)}}
+        .badge{display:inline-block;background:#1a2a4a;padding:1px 10px;border-radius:12px;font-size:11px;color:#6a9ac8}
+        @media(max-width:768px){body{padding:12px 12px 70px}.header{flex-direction:column;align-items:stretch}.brand-text{font-size:18px}.stats{font-size:12px;gap:8px;padding:4px 12px}.stats .update-time{padding-left:8px;border-left:none;width:100%}.controls{flex-direction:column;align-items:stretch}.controls select{max-width:100%;width:100%}.chart-grid{grid-template-columns:1fr;gap:14px}.chart-card .chart-container{height:180px}.upload-area{bottom:8px;right:12px;padding:3px 8px 3px 10px;font-size:11px}}
     </style>
 </head>
 <body>
-
-    <!-- Loading -->
-    <div class="loading-mask" id="loadingMask">
-        <div class="spinner"></div>
-    </div>
-
-    <!-- 头部 -->
+    <div class="loading-mask" id="loadingMask"><div class="spinner"></div></div>
     <header class="header">
-        <div class="brand">
-            <div class="logo">AL</div>
-            <span class="brand-text">铝产业数据库平台</span>
-        </div>
-        <div class="stats" id="statsBar">
+        <div class="brand"><div class="logo">AL</div><span class="brand-text">铝产业数据库平台</span></div>
+        <div class="stats">
             <span>📊 指标维度 <span class="num" id="dimCount">0</span></span>
             <span>📈 数据记录 <span class="num" id="rowCount">0</span></span>
-            <span class="badge" id="versionTag">v2.0</span>
+            <span class="badge">v2.0</span>
             <span class="update-time" id="updateTimeDisplay">⏱ 未更新</span>
         </div>
     </header>
-
-    <!-- 控制栏 -->
-    <div class="controls" id="controls">
-        <label>📂 维度
-            <select id="sheetSelect"><option value="">-- 加载数据 --</option></select>
-        </label>
-        <label>📌 对象
-            <select id="dimSelect"><option value="">-- 请先选择维度 --</option></select>
-        </label>
+    <div class="controls">
+        <label>📂 维度 <select id="sheetSelect"><option value="">-- 加载数据 --</option></select></label>
+        <label>📌 对象 <select id="dimSelect"><option value="">-- 请先选择维度 --</option></select></label>
         <button id="resetView" style="background:transparent;border:1px solid #2a4a6a;color:#8ab0d8;padding:4px 16px;border-radius:8px;cursor:pointer;font-size:13px;margin-left:auto;">↺ 重置所有</button>
     </div>
-
-    <!-- 图表区域 -->
     <div class="chart-grid" id="chartGrid">
-        <div class="empty-state">
-            <div class="icon">📊</div>
-            <h3>正在加载数据...</h3>
-            <p>请稍候</p>
-        </div>
+        <div class="empty-state"><div class="icon">📊</div><h3>正在加载数据...</h3><p>请稍候</p></div>
     </div>
-
-    <!-- 数据上传 -->
-    <div class="upload-area" id="uploadArea" title="点击上传新的Excel数据文件">
-        <span class="upload-icon">📤</span>
-        <span class="upload-label">更新数据</span>
+    <div class="upload-area" id="uploadArea">
+        <span>📤</span>
+        <span>更新数据</span>
         <span class="upload-status" id="uploadStatus"></span>
         <input type="file" id="fileInput" accept=".xlsx,.xls">
     </div>
-
-    <script>
-        // ============================================================
-        //  全局状态
-        // ============================================================
-        const STATE = {
-            workbook: null,
-            sheets: {},
-            sheetNames: [],
-            currentSheet: '',
-            currentDim: '',
-            dataLoaded: false,
-            totalDims: 0,
-            totalRows: 0,
-            updateTime: null,
-            cardStates: {},
-            cardIdCounter: 0,
-        };
-
-        const COLOR_PALETTE = ['#4a8af4', '#f4a84a', '#4ac8f4', '#f46a6a', '#8a6af4', '#6ac8a0', '#f4c84a', '#c86af4'];
-
+        <script>
+        // ===== 全局状态 =====
+        const STATE = { workbook: null, sheets: {}, sheetNames: [], currentSheet: '', currentDim: '', dataLoaded: false, totalDims: 0, totalRows: 0, updateTime: null, cardStates: {}, cardIdCounter: 0 };
+        const COLORS = ['#4a8af4','#f4a84a','#4ac8f4','#f46a6a','#8a6af4','#6ac8a0','#f4c84a','#c86af4'];
         const $ = id => document.getElementById(id);
-        const sheetSelect = $('sheetSelect');
-        const dimSelect = $('dimSelect');
-        const chartGrid = $('chartGrid');
-        const fileInput = $('fileInput');
-        const uploadStatus = $('uploadStatus');
-        const loadingMask = $('loadingMask');
-        const dimCount = $('dimCount');
-        const rowCount = $('rowCount');
-        const updateTimeDisplay = $('updateTimeDisplay');
+        const sheetSelect = $('sheetSelect'), dimSelect = $('dimSelect'), chartGrid = $('chartGrid');
+        const fileInput = $('fileInput'), uploadStatus = $('uploadStatus'), loadingMask = $('loadingMask');
+        const dimCount = $('dimCount'), rowCount = $('rowCount'), updateTimeDisplay = $('updateTimeDisplay');
         const resetView = $('resetView');
 
-        // ============================================================
-        //  工具函数
-        // ============================================================
-        function showLoading(show) {
-            loadingMask.classList.toggle('show', show);
-        }
+        function showLoading(show) { loadingMask.classList.toggle('show', show); }
 
         function formatDate(v) {
-            if (v instanceof Date) {
-                const d = new Date(v);
-                const y = d.getFullYear();
-                const m = String(d.getMonth() + 1).padStart(2, '0');
-                const day = String(d.getDate()).padStart(2, '0');
-                return `${y}-${m}-${day}`;
-            }
-            if (typeof v === 'number' && v > 40000) {
-                const d = new Date((v - 25569) * 86400 * 1000);
-                const y = d.getFullYear();
-                const m = String(d.getMonth() + 1).padStart(2, '0');
-                const day = String(d.getDate()).padStart(2, '0');
-                return `${y}-${m}-${day}`;
-            }
+            if (v instanceof Date) { const d = new Date(v); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+            if (typeof v === 'number' && v > 40000) { const d = new Date((v-25569)*86400*1000); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
             if (typeof v === 'string' && /^\d{4}-\d{2}-\d{2}/.test(v)) return v;
             return String(v);
         }
 
         function parseDate(v) {
             if (v instanceof Date) return v;
-            if (typeof v === 'number' && v > 40000) {
-                return new Date((v - 25569) * 86400 * 1000);
-            }
-            if (typeof v === 'string') {
-                const m = v.match(/(\d{4})-(\d{2})-(\d{2})/);
-                if (m) return new Date(parseInt(m[1]), parseInt(m[2]) - 1, parseInt(m[3]));
-                const m2 = v.match(/(\d{4})\/(\d{2})\/(\d{2})/);
-                if (m2) return new Date(parseInt(m2[1]), parseInt(m2[2]) - 1, parseInt(m2[3]));
-            }
+            if (typeof v === 'number' && v > 40000) return new Date((v-25569)*86400*1000);
+            if (typeof v === 'string') { const m = v.match(/(\d{4})-(\d{2})-(\d{2})/); if(m) return new Date(parseInt(m[1]), parseInt(m[2])-1, parseInt(m[3])); }
             return null;
         }
 
-        function isNumeric(v) {
-            return typeof v === 'number' && !isNaN(v);
-        }
+        function isNumeric(v) { return typeof v === 'number' && !isNaN(v); }
+        function dateToStr(d) { if(!d) return ''; return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
 
-        function dateToStr(d) {
-            if (!d) return '';
-            const y = d.getFullYear();
-            const m = String(d.getMonth() + 1).padStart(2, '0');
-            const day = String(d.getDate()).padStart(2, '0');
-            return `${y}-${m}-${day}`;
-        }
-
-        function getIndicatorColor(index) {
-            return COLOR_PALETTE[index % COLOR_PALETTE.length];
-        }
-
-        // ============================================================
-        //  数据解析核心
-        // ============================================================
+        // ===== 解析Excel =====
         function parseWorkbook(workbook) {
             const result = {};
-            const sheetNames = workbook.SheetNames;
-            let totalDims = 0;
-            let totalRows = 0;
-
-            for (const sname of sheetNames) {
+            let totalDims = 0, totalRows = 0;
+            for (const sname of workbook.SheetNames) {
                 const ws = workbook.Sheets[sname];
                 if (!ws) continue;
                 const data = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
                 if (data.length < 6) continue;
-
                 const merges = ws['!merges'] || [];
                 const dimRow = data[0] || [];
                 const dimMap = {};
@@ -632,44 +125,22 @@
                     let val = dimRow[c];
                     if (val && val.trim()) {
                         let isMergeStart = false;
-                        for (const m of merges) {
-                            if (m.s.r === 0 && m.s.c === c) {
-                                isMergeStart = true;
-                                break;
-                            }
-                        }
+                        for (const m of merges) { if (m.s.r === 0 && m.s.c === c) { isMergeStart = true; break; } }
                         if (isMergeStart) {
                             const m = merges.find(m => m.s.r === 0 && m.s.c === c);
                             if (m) {
                                 const label = data[0]?.[c] || '';
-                                const endCol = m.e.c;
-                                for (let cc = c; cc <= endCol; cc++) {
-                                    dimMap[cc] = { dim: label, isMain: cc === c };
-                                }
+                                for (let cc = c; cc <= m.e.c; cc++) { dimMap[cc] = { dim: label, isMain: cc === c }; }
                                 currentDim = label;
-                                c = endCol;
+                                c = m.e.c;
                                 continue;
                             }
                         }
-                        if (val.trim()) {
-                            dimMap[c] = { dim: val.trim(), isMain: true };
-                            currentDim = val.trim();
-                        } else {
-                            if (currentDim) {
-                                dimMap[c] = { dim: currentDim, isMain: false };
-                            }
-                        }
-                    } else {
-                        if (currentDim) {
-                            dimMap[c] = { dim: currentDim, isMain: false };
-                        }
-                    }
+                        if (val.trim()) { dimMap[c] = { dim: val.trim(), isMain: true }; currentDim = val.trim(); }
+                        else { if (currentDim) dimMap[c] = { dim: currentDim, isMain: false }; }
+                    } else { if (currentDim) dimMap[c] = { dim: currentDim, isMain: false }; }
                 }
-
-                const indicatorRow = data[1] || [];
-                const unitRow = data[3] || [];
-                const dataRows = data.slice(5);
-
+                const indicatorRow = data[1] || [], unitRow = data[3] || [], dataRows = data.slice(5);
                 const dimGroups = {};
                 for (let c = 0; c < indicatorRow.length; c++) {
                     const indName = indicatorRow[c] || '';
@@ -678,56 +149,32 @@
                     const dim = dimInfo.dim || '其他';
                     const unit = unitRow[c] || '';
                     if (!dimGroups[dim]) dimGroups[dim] = [];
-                    dimGroups[dim].push({
-                        col: c,
-                        name: indName.trim(),
-                        unit: unit.trim(),
-                        data: []
-                    });
+                    dimGroups[dim].push({ col: c, name: indName.trim(), unit: unit.trim(), data: [] });
                 }
-
                 for (const dim in dimGroups) {
                     for (const ind of dimGroups[dim]) {
-                        const col = ind.col;
                         for (let r = 0; r < dataRows.length; r++) {
                             const row = dataRows[r];
-                            if (!row || row.length === 0) continue;
-                            const dateVal = row[0];
-                            const numVal = row[col];
-                            const d = parseDate(dateVal);
-                            if (d && isNumeric(numVal)) {
-                                ind.data.push({ date: d, value: numVal });
-                            }
+                            if (!row) continue;
+                            const d = parseDate(row[0]);
+                            const v = row[ind.col];
+                            if (d && isNumeric(v)) ind.data.push({ date: d, value: v });
                         }
-                        ind.data.sort((a, b) => a.date - b.date);
+                        ind.data.sort((a,b) => a.date - b.date);
                     }
                 }
-
                 const filtered = {};
                 for (const dim in dimGroups) {
-                    const hasData = dimGroups[dim].some(ind => ind.data.length > 0);
-                    if (hasData) {
-                        filtered[dim] = dimGroups[dim];
-                    }
+                    if (dimGroups[dim].some(ind => ind.data.length > 0)) filtered[dim] = dimGroups[dim];
                 }
-
                 if (Object.keys(filtered).length > 0) {
                     result[sname] = filtered;
-                    for (const dim in filtered) {
-                        totalDims++;
-                        for (const ind of filtered[dim]) {
-                            totalRows += ind.data.length;
-                        }
-                    }
+                    for (const dim in filtered) { totalDims++; for (const ind of filtered[dim]) totalRows += ind.data.length; }
                 }
             }
-
             return { data: result, totalDims, totalRows };
         }
-
-        // ============================================================
-        //  数据加载
-        // ============================================================
+                    // ===== 加载数据 =====
         function loadData(workbook) {
             showLoading(true);
             try {
@@ -739,12 +186,9 @@
                 STATE.totalRows = parsed.totalRows;
                 STATE.dataLoaded = true;
                 STATE.updateTime = new Date();
-
                 dimCount.textContent = parsed.totalDims;
                 rowCount.textContent = parsed.totalRows.toLocaleString();
-                updateTimeDisplay.textContent = '⏱ 更新: ' + formatDate(STATE.updateTime) + ' ' +
-                    STATE.updateTime.toTimeString().slice(0, 5);
-
+                updateTimeDisplay.textContent = '⏱ 更新: ' + formatDate(STATE.updateTime) + ' ' + STATE.updateTime.toTimeString().slice(0,5);
                 sheetSelect.innerHTML = '<option value="">-- 选择维度 --</option>';
                 for (const name of STATE.sheetNames) {
                     const opt = document.createElement('option');
@@ -752,22 +196,13 @@
                     opt.textContent = name;
                     sheetSelect.appendChild(opt);
                 }
-
                 dimSelect.innerHTML = '<option value="">-- 请先选择维度 --</option>';
-
                 STATE.cardStates = {};
                 STATE.cardIdCounter = 0;
-
-                chartGrid.innerHTML = `<div class="empty-state"><div class="icon">📊</div><h3>请选择维度和对象</h3><p>共 ${parsed.totalDims} 个指标维度，${parsed.totalRows.toLocaleString()} 条数据</p></div>`;
-
+                chartGrid.innerHTML = '<div class="empty-state"><div class="icon">📊</div><h3>请选择维度和对象</h3><p>共 '+parsed.totalDims+' 个指标维度，'+parsed.totalRows.toLocaleString()+' 条数据</p></div>';
                 uploadStatus.textContent = '✅ 已加载';
                 uploadStatus.style.color = '#5a8a5a';
-
-                if (STATE.sheetNames.length > 0) {
-                    sheetSelect.value = STATE.sheetNames[0];
-                    onSheetChange();
-                }
-
+                if (STATE.sheetNames.length > 0) { sheetSelect.value = STATE.sheetNames[0]; onSheetChange(); }
             } catch (e) {
                 console.error(e);
                 uploadStatus.textContent = '❌ 解析失败';
@@ -777,52 +212,36 @@
             showLoading(false);
         }
 
-        // ============================================================
-        //  交互事件
-        // ============================================================
         function onSheetChange() {
             const sname = sheetSelect.value;
             if (!sname || !STATE.sheets[sname]) {
                 dimSelect.innerHTML = '<option value="">-- 请先选择维度 --</option>';
                 clearAllCharts();
-                chartGrid.innerHTML = `<div class="empty-state"><div class="icon">📊</div><h3>请选择维度</h3></div>`;
+                chartGrid.innerHTML = '<div class="empty-state"><div class="icon">📊</div><h3>请选择维度</h3></div>';
                 return;
             }
             STATE.currentSheet = sname;
             const dims = Object.keys(STATE.sheets[sname]);
             dimSelect.innerHTML = '<option value="">-- 选择对象 --</option>';
-            for (const d of dims) {
-                const opt = document.createElement('option');
-                opt.value = d;
-                opt.textContent = d;
-                dimSelect.appendChild(opt);
-            }
-            if (dims.length > 0) {
-                dimSelect.value = dims[0];
-                onDimChange();
-            }
+            for (const d of dims) { const opt = document.createElement('option'); opt.value = d; opt.textContent = d; dimSelect.appendChild(opt); }
+            if (dims.length > 0) { dimSelect.value = dims[0]; onDimChange(); }
         }
 
         function onDimChange() {
-            const sname = sheetSelect.value;
-            const dim = dimSelect.value;
+            const sname = sheetSelect.value, dim = dimSelect.value;
             if (!sname || !dim || !STATE.sheets[sname] || !STATE.sheets[sname][dim]) {
                 clearAllCharts();
-                chartGrid.innerHTML = `<div class="empty-state"><div class="icon">📊</div><h3>请选择对象</h3></div>`;
+                chartGrid.innerHTML = '<div class="empty-state"><div class="icon">📊</div><h3>请选择对象</h3></div>';
                 return;
             }
             STATE.currentDim = dim;
             renderAllCharts(sname, dim);
         }
 
-        // ============================================================
-        //  图表渲染
-        // ============================================================
         function clearAllCharts() {
             for (const cid in STATE.cardStates) {
-                const st = STATE.cardStates[cid];
-                if (st.chartInstance) {
-                    try { st.chartInstance.dispose(); } catch (e) {}
+                if (STATE.cardStates[cid].chartInstance) {
+                    try { STATE.cardStates[cid].chartInstance.dispose(); } catch(e) {}
                 }
             }
             STATE.cardStates = {};
@@ -831,169 +250,135 @@
 
         function renderAllCharts(sheetName, dimName) {
             clearAllCharts();
-
             const indicators = STATE.sheets[sheetName][dimName];
             if (!indicators || indicators.length === 0) {
-                chartGrid.innerHTML = `<div class="empty-state"><div class="icon">📉</div><h3>该对象暂无数据</h3></div>`;
+                chartGrid.innerHTML = '<div class="empty-state"><div class="icon">📉</div><h3>该对象暂无数据</h3></div>';
                 return;
             }
-
             const validIndicators = indicators.filter(ind => ind.data.length > 0);
             if (validIndicators.length === 0) {
-                chartGrid.innerHTML = `<div class="empty-state"><div class="icon">📉</div><h3>该对象暂无有效数据</h3></div>`;
+                chartGrid.innerHTML = '<div class="empty-state"><div class="icon">📉</div><h3>该对象暂无有效数据</h3></div>';
                 return;
             }
-
             chartGrid.innerHTML = '';
-
-            validIndicators.forEach((ind, idx) => {
+            validIndicators.forEach((ind) => {
                 const cardId = 'card-' + (STATE.cardIdCounter++);
-                const card = createCard(cardId, ind, sheetName, dimName, validIndicators);
+                const card = document.createElement('div');
+                card.className = 'chart-card';
+                card.dataset.cardId = cardId;
+                const compareOptions = validIndicators.filter(i => i.name !== ind.name).map(i => '<option value="'+i.name+'">'+i.name+'</option>').join('');
+                const header = document.createElement('div');
+                header.className = 'card-header';
+                header.innerHTML = '<span class="card-title">'+ind.name+'</span><div class="card-controls">'+
+                    '<select class="chart-type-select" data-card="'+cardId+'"><option value="line">折线</option><option value="bar">柱状</option></select>'+
+                    '<select class="compare-select" data-card="'+cardId+'"><option value="">+ 对比</option>'+compareOptions+'</select>'+
+                    '<button class="add-compare-btn" data-card="'+cardId+'">添加</button>'+
+                    '<span class="compare-tags" data-card="'+cardId+'"></span>'+
+                    '<span class="date-range"><input type="date" class="date-start" data-card="'+cardId+'" value="">~<input type="date" class="date-end" data-card="'+cardId+'" value=""></span></div>';
+                card.appendChild(header);
+                const container = document.createElement('div');
+                container.className = 'chart-container';
+                container.id = 'chart-'+cardId;
+                card.appendChild(container);
                 chartGrid.appendChild(card);
 
                 const allDates = ind.data.map(d => d.date);
-                const minD = new Date(Math.min(...allDates));
-                const maxD = new Date(Math.max(...allDates));
+                const minD = new Date(Math.min(...allDates)), maxD = new Date(Math.max(...allDates));
                 STATE.cardStates[cardId] = {
-                    indicatorName: ind.name,
-                    indicatorData: ind.data,
-                    unit: ind.unit || '',
-                    chartType: 'line',
-                    dateStart: dateToStr(minD),
-                    dateEnd: dateToStr(maxD),
-                    compareList: [],
-                    chartInstance: null,
-                    sheetName: sheetName,
-                    dimName: dimName,
-                    allIndicators: validIndicators,
-                    mainIndicator: ind,
+                    indicatorName: ind.name, indicatorData: ind.data, unit: ind.unit || '',
+                    chartType: 'line', dateStart: dateToStr(minD), dateEnd: dateToStr(maxD),
+                    compareList: [], chartInstance: null, sheetName: sheetName, dimName: dimName,
+                    allIndicators: validIndicators, mainIndicator: ind
                 };
-
                 renderCardChart(cardId);
             });
-
             setTimeout(() => {
                 for (const cid in STATE.cardStates) {
-                    const st = STATE.cardStates[cid];
-                    if (st.chartInstance) {
-                        try { st.chartInstance.resize(); } catch (e) {}
+                    if (STATE.cardStates[cid].chartInstance) {
+                        try { STATE.cardStates[cid].chartInstance.resize(); } catch(e) {}
                     }
                 }
             }, 150);
         }
 
-        // ============================================================
-        //  创建卡片DOM
-        // ============================================================
-        function createCard(cardId, indicator, sheetName, dimName, allIndicators) {
-            const card = document.createElement('div');
-            card.className = 'chart-card';
-            card.dataset.cardId = cardId;
-
-            const compareOptions = allIndicators
-                .filter(ind => ind.name !== indicator.name)
-                .map(ind => `<option value="${ind.name}">${ind.name}</option>`)
-                .join('');
-
-            const header = document.createElement('div');
-            header.className = 'card-header';
-            header.innerHTML = `
-                <span class="card-title">${indicator.name}</span>
-                <div class="card-controls">
-                    <select class="chart-type-select" data-card="${cardId}">
-                        <option value="line">折线</option>
-                        <option value="bar">柱状</option>
-                    </select>
-                    <select class="compare-select" data-card="${cardId}">
-                        <option value="">+ 对比</option>
-                        ${compareOptions}
-                    </select>
-                    <button class="add-compare-btn" data-card="${cardId}">添加</button>
-                    <span class="compare-tags" data-card="${cardId}"></span>
-                    <span class="date-range">
-                        <input type="date" class="date-start" data-card="${cardId}" value="">
-                        <span style="color:#4a6a8a;">~</span>
-                        <input type="date" class="date-end" data-card="${cardId}" value="">
-                    </span>
-                </div>
-            `;
-            card.appendChild(header);
-
-            const container = document.createElement('div');
-            container.className = 'chart-container';
-            container.id = 'chart-' + cardId;
-            card.appendChild(container);
-
-            // 事件绑定
-            const typeSelect = header.querySelector('.chart-type-select');
-            typeSelect.addEventListener('change', function() {
-                const cid = this.dataset.card;
-                if (STATE.cardStates[cid]) {
-                    STATE.cardStates[cid].chartType = this.value;
-                    renderCardChart(cid);
+        function renderCardChart(cardId) {
+            const st = STATE.cardStates[cardId];
+            if (!st) return;
+            const container = document.getElementById('chart-'+cardId);
+            if (!container) return;
+            const allSeries = [];
+            const allDatesSet = new Set();
+            const mainData = st.indicatorData || [];
+            mainData.forEach(d => allDatesSet.add(dateToStr(d.date)));
+            allSeries.push({ name: st.indicatorName, data: mainData.map(d => ({ date: dateToStr(d.date), value: d.value })), isMain: true, color: '#4a8af4', yAxisIndex: 0 });
+            let colorIdx = 1;
+            const dimData = STATE.sheets[st.sheetName]?.[st.dimName];
+            for (const compName of st.compareList) {
+                const compInd = dimData ? dimData.find(ind => ind.name === compName) : null;
+                if (compInd && compInd.data.length > 0) {
+                    compInd.data.forEach(d => allDatesSet.add(dateToStr(d.date)));
+                    allSeries.push({ name: compName, data: compInd.data.map(d => ({ date: dateToStr(d.date), value: d.value })), isMain: false, color: COLORS[colorIdx++ % COLORS.length], yAxisIndex: 1 });
                 }
+            }
+            if (allSeries.length === 0) { container.innerHTML = '<div class="no-data-msg">暂无数据</div>'; return; }
+            let filteredDates = [...allDatesSet].sort();
+            const startStr = st.dateStart || '', endStr = st.dateEnd || '';
+            if (startStr) filteredDates = filteredDates.filter(d => d >= startStr);
+            if (endStr) filteredDates = filteredDates.filter(d => d <= endStr);
+            if (filteredDates.length === 0) { container.innerHTML = '<div class="no-data-msg">该时间范围内无数据</div>'; return; }
+
+            const seriesData = allSeries.map(ser => {
+                const map = {};
+                ser.data.forEach(d => { map[d.date] = d.value; });
+                const values = filteredDates.map(d => { const v = map[d]; return (v !== undefined && v !== null && !isNaN(v)) ? v : null; });
+                return { name: ser.name, type: st.chartType || 'line', data: values, smooth: st.chartType === 'line', symbol: 'circle', symbolSize: 4, lineStyle: { width: 2 }, itemStyle: { color: ser.color }, barWidth: '30%', yAxisIndex: ser.yAxisIndex, emphasis: { focus: 'series' } };
             });
 
-            const addBtn = header.querySelector('.add-compare-btn');
-            addBtn.addEventListener('click', function() {
-                const cid = this.dataset.card;
-                const select = document.querySelector(`.compare-select[data-card="${cid}"]`);
-                const val = select.value;
-                if (!val) return;
-                const st = STATE.cardStates[cid];
-                if (!st) return;
-                if (st.compareList.includes(val)) {
-                    alert('该指标已在对比列表中');
-                    return;
-                }
-                st.compareList.push(val);
-                renderCardChart(cid);
-                updateCompareTags(cid);
-                select.value = '';
-            });
-
-            const compSelect = header.querySelector('.compare-select');
-            compSelect.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter') {
-                    const cid = this.dataset.card;
-                    const btn = document.querySelector(`.add-compare-btn[data-card="${cid}"]`);
-                    if (btn) btn.click();
-                }
-            });
-
-            const dateStart = header.querySelector('.date-start');
-            const dateEnd = header.querySelector('.date-end');
-            dateStart.addEventListener('change', function() {
-                const cid = this.dataset.card;
-                if (STATE.cardStates[cid]) {
-                    STATE.cardStates[cid].dateStart = this.value;
-                    renderCardChart(cid);
-                }
-            });
-            dateEnd.addEventListener('change', function() {
-                const cid = this.dataset.card;
-                if (STATE.cardStates[cid]) {
-                    STATE.cardStates[cid].dateEnd = this.value;
-                    renderCardChart(cid);
-                }
-            });
-
-            return card;
+            let chart = st.chartInstance;
+            if (!chart) {
+                chart = echarts.init(container);
+                st.chartInstance = chart;
+                const resizeHandler = () => { try { chart.resize(); } catch(e) {} };
+                window.addEventListener('resize', resizeHandler);
+                chart._resizeHandler = resizeHandler;
+            }
+            const option = {
+                tooltip: { trigger: 'axis', confine: true, formatter: function(params) {
+                    if (!params || params.length === 0) return '';
+                    let s = params[0].axisValue + '<br/>';
+                    for (const p of params) {
+                        if (p.value !== null && p.value !== undefined && !isNaN(p.value)) {
+                            s += p.marker + ' ' + p.seriesName + ': ' + p.value + ' ';
+                        }
+                    }
+                    return s;
+                }},
+                legend: { data: seriesData.map(s => s.name), type: 'scroll', orient: 'horizontal', left: 'center', top: 0, width: '100%', itemWidth: 14, itemHeight: 10, textStyle: { color: '#8aa4c8', fontSize: 11 } },
+                grid: { left: '5%', right: '8%', bottom: '12%', top: '22%', containLabel: true },
+                xAxis: { type: 'category', data: filteredDates, axisLabel: { color: '#7a9ab8', fontSize: 10, rotate: 30, interval: Math.max(1, Math.floor(filteredDates.length / 30)) }, axisLine: { lineStyle: { color: '#1a3050' } } },
+                yAxis: [
+                    { type: 'value', name: '主指标', nameTextStyle: { color: '#6a8aaa', fontSize: 11 }, axisLabel: { color: '#7a9ab8', fontSize: 10 }, axisLine: { lineStyle: { color: '#1a3050' } }, splitLine: { lineStyle: { color: '#0d1a2a', type: 'dashed' } } },
+                    { type: 'value', name: '对比值', nameTextStyle: { color: '#6a8aaa', fontSize: 11 }, axisLabel: { color: '#7a9ab8', fontSize: 10 }, axisLine: { lineStyle: { color: '#1a3050' } }, splitLine: { show: false } }
+                ],
+                series: seriesData,
+                dataZoom: [{ type: 'inside', start: 0, end: 100, minSpan: 3 }],
+                backgroundColor: 'transparent',
+                animation: true
+            };
+            chart.setOption(option, true);
+            setTimeout(() => { try { chart.resize(); } catch(e) {} }, 80);
         }
 
-        // ============================================================
-        //  更新对比标签
-        // ============================================================
         function updateCompareTags(cardId) {
             const st = STATE.cardStates[cardId];
             if (!st) return;
-            const container = document.querySelector(`.compare-tags[data-card="${cardId}"]`);
+            const container = document.querySelector('.compare-tags[data-card="'+cardId+'"]');
             if (!container) return;
             container.innerHTML = '';
             for (const name of st.compareList) {
                 const tag = document.createElement('span');
                 tag.className = 'compare-tag';
-                tag.innerHTML = `${name} <span class="remove-tag" data-card="${cardId}" data-name="${name}">×</span>`;
+                tag.innerHTML = name + ' <span class="remove-tag" data-card="'+cardId+'" data-name="'+name+'">×</span>';
                 container.appendChild(tag);
             }
             container.querySelectorAll('.remove-tag').forEach(el => {
@@ -1009,7 +394,102 @@
             });
         }
 
-        // ============================================================
-        //  渲染单个卡片图表
-        // ============================================================
-        function renderCard
+        async function loadDefaultData() {
+            try {
+                const fileUrl = 'https://zhougao156.github.io/Al_Industry_data/铝产业数据.xlsx';
+                console.log('正在加载:', fileUrl);
+                const response = await fetch(fileUrl);
+                if (!response.ok) throw new Error('HTTP ' + response.status);
+                const arrayBuffer = await response.arrayBuffer();
+                console.log('文件加载成功，大小:', arrayBuffer.byteLength, '字节');
+                const workbook = XLSX.read(arrayBuffer, { type: 'array', cellDates: true });
+                loadData(workbook);
+            } catch (e) {
+                console.error('加载失败:', e);
+                chartGrid.innerHTML = '<div class="empty-state"><div class="icon">⚠️</div><h3>自动加载数据失败</h3><p>请点击右下角「更新数据」手动上传</p><p style="font-size:12px;color:#4a6a8a;">错误: '+e.message+'</p></div>';
+                uploadStatus.textContent = '⚠️ 加载失败';
+                uploadStatus.style.color = '#c05a5a';
+            }
+        }
+
+        function init() {
+            sheetSelect.addEventListener('change', onSheetChange);
+            dimSelect.addEventListener('change', onDimChange);
+            fileInput.addEventListener('change', function(e) {
+                if (this.files && this.files.length > 0) {
+                    uploadStatus.textContent = '⏳ 处理中...';
+                    uploadStatus.style.color = '#d0a040';
+                    const file = this.files[0];
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        try {
+                            const data = new Uint8Array(e.target.result);
+                            const workbook = XLSX.read(data, { type: 'array', cellDates: true });
+                            loadData(workbook);
+                        } catch(err) {
+                            alert('文件读取失败: '+err.message);
+                            uploadStatus.textContent = '❌ 失败';
+                            uploadStatus.style.color = '#c05a5a';
+                        }
+                    };
+                    reader.readAsArrayBuffer(file);
+                    this.value = '';
+                }
+            });
+            resetView.addEventListener('click', function() {
+                for (const cid in STATE.cardStates) {
+                    const st = STATE.cardStates[cid];
+                    const allDates = st.indicatorData.map(d => d.date);
+                    st.dateStart = dateToStr(new Date(Math.min(...allDates)));
+                    st.dateEnd = dateToStr(new Date(Math.max(...allDates)));
+                    st.chartType = 'line';
+                    st.compareList = [];
+                    const card = document.querySelector('.chart-card[data-card-id="'+cid+'"]');
+                    if (card) {
+                        const ts = card.querySelector('.chart-type-select');
+                        if (ts) ts.value = 'line';
+                        const ds = card.querySelector('.date-start');
+                        if (ds) ds.value = st.dateStart;
+                        const de = card.querySelector('.date-end');
+                        if (de) de.value = st.dateEnd;
+                        const cs = card.querySelector('.compare-select');
+                        if (cs) cs.value = '';
+                    }
+                    updateCompareTags(cid);
+                    renderCardChart(cid);
+                }
+                if (STATE.sheetNames.length > 0) { sheetSelect.value = STATE.sheetNames[0]; onSheetChange(); }
+            });
+            document.addEventListener('dragover', e => e.preventDefault());
+            document.addEventListener('drop', e => {
+                e.preventDefault();
+                const files = e.dataTransfer.files;
+                if (files && files.length > 0) {
+                    const f = files[0];
+                    if (['xlsx','xls'].includes(f.name.split('.').pop().toLowerCase())) {
+                        uploadStatus.textContent = '⏳ 处理中...';
+                        uploadStatus.style.color = '#d0a040';
+                        const reader = new FileReader();
+                        reader.onload = function(ev) {
+                            try {
+                                const data = new Uint8Array(ev.target.result);
+                                const workbook = XLSX.read(data, { type: 'array', cellDates: true });
+                                loadData(workbook);
+                            } catch(err) {
+                                alert('文件读取失败: '+err.message);
+                            }
+                        };
+                        reader.readAsArrayBuffer(f);
+                    }
+                }
+            });
+            uploadStatus.textContent = '⏳ 加载中...';
+            uploadStatus.style.color = '#d0a040';
+            loadDefaultData();
+            console.log('铝产业数据库平台 v2.0 已启动');
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
